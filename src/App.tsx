@@ -465,6 +465,7 @@ const App: React.FC = () => {
                           borderRadius: "0.5rem",
                         }}
                       />
+                      <Legend />
                       <Bar
                         dataKey="quantidade"
                         name="Qtde. de combinações"
