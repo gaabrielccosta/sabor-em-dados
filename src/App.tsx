@@ -52,16 +52,83 @@ const weekIndexes: Record<string, number> = {
   sábado: 6,
 };
 
-// cores pros gráficos de pizza
+// paleta maior para os gráficos de pizza (boa em fundo escuro)
 const PIE_COLORS = [
-  "#60a5fa",
-  "#34d399",
-  "#f97316",
-  "#a855f7",
-  "#facc15",
-  "#f87171",
-  "#22d3ee",
+  "#0ea5e9", // sky-500
+  "#22c55e", // green-500
+  "#f97316", // orange-500
+  "#a855f7", // purple-500
+  "#eab308", // yellow-500
+  "#f43f5e", // rose-500
+  "#2dd4bf", // teal-400
+  "#6366f1", // indigo-500
+  "#84cc16", // lime-500
+  "#ec4899", // pink-500
+  "#14b8a6", // teal-500
+  "#facc15", // amber-400
+  "#38bdf8", // sky-400
+  "#c4b5fd", // violet-300
+  "#fb7185", // rose-400
+  "#4ade80", // green-400
+  "#e5e7eb", // gray-200
+  "#f59e0b", // amber-500
+  "#a3e635", // lime-400
+  "#67e8f9", // cyan-300
 ];
+
+const renderPratosLegend = (props: any) => {
+  const { payload } = props;
+  if (!payload || payload.length === 0) return null;
+
+  // soma total das quantidades
+  const total = payload.reduce(
+    (sum: number, entry: any) =>
+      sum + (entry.payload?.qtd_prevista_media ?? 0),
+    0
+  );
+
+  return (
+    <ul
+      style={{
+        listStyle: "none",
+        margin: 0,
+        padding: 0,
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: "0.5rem 1rem",
+        fontSize: "0.8rem",
+      }}
+    >
+      {payload.map((entry: any, index: number) => {
+        const valor = entry.payload?.qtd_prevista_media ?? 0;
+        const percent = total > 0 ? (valor / total) * 100 : 0;
+
+        return (
+          <li
+            key={`item-${index}`}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: 10,
+                height: 10,
+                borderRadius: 2,
+                backgroundColor: entry.color,
+                marginRight: 6,
+              }}
+            />
+            <span>
+              {entry.value} ({percent.toFixed(1)}%)
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
 
 const App: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([]);
@@ -98,9 +165,7 @@ const App: React.FC = () => {
         if (data.length > 0) {
           let achou = false;
           for (const key of Object.keys(weekIndexes)) {
-            if (achou) {
-              break;
-            }
+            if (achou) break;
             for (const d of data) {
               if (d.dia_semana === key) {
                 setSelectedDia(d.dia_semana);
@@ -132,6 +197,33 @@ const App: React.FC = () => {
       .sort((a, b) => b.qtd_prevista_media - a.qtd_prevista_media);
   }, [rows, selectedDia]);
 
+  // Dados específicos para o gráfico de pizza de pratos (top N + "Outros")
+  const piePratosData = useMemo<Row[]>(() => {
+    const MAX_SLICES = 10;
+
+    if (dadosPratosDia.length <= MAX_SLICES) {
+      return dadosPratosDia;
+    }
+
+    const top = dadosPratosDia.slice(0, MAX_SLICES);
+    const outros = dadosPratosDia.slice(MAX_SLICES);
+
+    const totalOutros = outros.reduce(
+      (acc, row) => acc + row.qtd_prevista_media,
+      0
+    );
+
+    return [
+      ...top,
+      {
+        prato: "Outros pratos",
+        dia_semana: selectedDia,
+        qtd_prevista_media: Number(totalOutros.toFixed(3)),
+        nivel_movimento_prato: "",
+      },
+    ];
+  }, [dadosPratosDia, selectedDia]);
+
   // Contagem de pratos por nível de movimento
   const dadosNivelMovimento = useMemo<NivelMovimentoData[]>(() => {
     const contagem: Record<string, number> = {};
@@ -150,6 +242,9 @@ const App: React.FC = () => {
       }))
       .sort((a, b) => ordem.indexOf(a.nivel) - ordem.indexOf(b.nivel));
   }, [rows]);
+
+  // só mostra label na pizza se a fatia for >= 5%
+  const MIN_PIE_LABEL_PERCENT = 0.05;
 
   return (
     <div
@@ -318,25 +413,33 @@ const App: React.FC = () => {
                       />
                     </BarChart>
                   ) : (
-                    <PieChart>
+                    <PieChart margin={{ top: 8, bottom: 20, right: 8, left: 8 }}>
                       <Pie
-                        data={dadosPratosDia}
+                        data={piePratosData}
                         dataKey="qtd_prevista_media"
                         nameKey="prato"
                         cx="50%"
                         cy="50%"
                         outerRadius={100}
-                        label
+                        labelLine={false}
+                        label={false}
                       >
-                        {dadosPratosDia.map((_, index) => (
+                        {piePratosData.map((_, index) => (
                           <Cell
                             key={`cell-prato-${index}`}
                             fill={PIE_COLORS[index % PIE_COLORS.length]}
                           />
                         ))}
                       </Pie>
-                      <Legend />
+
+                      <Legend
+                        layout="horizontal"
+                        verticalAlign="bottom"
+                        align="center"
+                        content={renderPratosLegend}
+                      />
                     </PieChart>
+
                   )}
                 </ResponsiveContainer>
               </div>
@@ -372,15 +475,18 @@ const App: React.FC = () => {
                       />
                     </BarChart>
                   ) : (
-                    <PieChart>
+                    <PieChart margin={{ top: 8, bottom: 40, right: 4, left: 4 }}>
                       <Pie
                         data={dadosNivelMovimento}
                         dataKey="quantidade"
                         nameKey="nivel"
                         cx="50%"
                         cy="50%"
-                        outerRadius={110}
-                        label
+                        outerRadius={100}
+                        labelLine={false}
+                        label={({ name, percent }) =>
+                          `${name} (${(percent! * 100).toFixed(1)}%)`
+                        }
                       >
                         {dadosNivelMovimento.map((_, index) => (
                           <Cell
@@ -389,14 +495,14 @@ const App: React.FC = () => {
                           />
                         ))}
                       </Pie>
-                      <Legend />
                     </PieChart>
                   )}
                 </ResponsiveContainer>
+
               </div>
             </section>
 
-            {/* 🔽 NOVA SEÇÃO: Sugestão de preparo para o dia selecionado */}
+            {/* Sugestão de preparo para o dia selecionado */}
             <section
               style={{
                 marginTop: "2.5rem",
@@ -490,8 +596,7 @@ const App: React.FC = () => {
                               textTransform: "capitalize",
                             }}
                           >
-                            {linha.nivel_movimento_prato ||
-                              "não definido"}
+                            {linha.nivel_movimento_prato || "não definido"}
                           </td>
                         </tr>
                       ))}
