@@ -243,9 +243,6 @@ const App: React.FC = () => {
       .sort((a, b) => ordem.indexOf(a.nivel) - ordem.indexOf(b.nivel));
   }, [rows]);
 
-  // só mostra label na pizza se a fatia for >= 5%
-  const MIN_PIE_LABEL_PERCENT = 0.05;
-
   return (
     <div
       style={{
