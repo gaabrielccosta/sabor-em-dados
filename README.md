@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# 🍽️ Sabor em Dados
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Sabor em Dados** é uma aplicação web construída com **React + TypeScript + Vite** que permite visualizar, de forma interativa, previsões de consumo de pratos em um restaurante a partir de um arquivo **CSV** gerado previamente em um notebook do Google Colab.
 
-Currently, two official plugins are available:
+O foco é apoiar a **gestão de produção** e **planejamento de cardápio**, ajudando a responder perguntas como:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Quantas unidades de cada prato devo preparar em cada dia da semana?
+- Quais pratos têm **baixo**, **médio** ou **alto** nível de movimento?
+- Como enxergar esses dados de forma visual, em **gráficos de barras** ou **pizza**?
 
-## React Compiler
+---
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## 🧠 Visão geral da aplicação
 
-## Expanding the ESLint configuration
+A aplicação funciona em cima de um **arquivo CSV** com previsões por **prato** e **dia da semana**.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Depois do upload do arquivo, o usuário consegue:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Selecionar um dia da semana** (segunda a sábado).
+2. Ver um **gráfico de quantidade prevista por prato** para o dia selecionado.
+3. Ver um **gráfico de distribuição por nível de movimento** (baixo, médio, alto).
+4. Alternar entre **gráficos de barras** e **gráficos de pizza** através de um select.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Tudo isso em um **dashboard dark**, pensado para uso em tela cheia.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚙️ Tecnologias utilizadas
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Vite** – bundler e dev server.
+- **React** – construção da interface.
+- **TypeScript** – tipagem estática.
+- **Papaparse** – parser de arquivos CSV no navegador.
+- **Recharts** – gráficos (barras e pizza).
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 📁 Estrutura esperada do CSV
+
+O arquivo CSV deve conter, no mínimo, as seguintes colunas (nomes em minúsculo):
+
+- `prato` – nome do prato.
+- `dia_semana` – dia da semana (ex.: `segunda`, `terça`, `quarta`, `quinta`, `sexta`, `sábado`).
+- Uma das duas:
+  - `qtd_prevista_media` – quantidade prevista (média) do prato.
+  - **ou** `qtd_vendida` – quantidade vendida (caso a previsão esteja baseada nisso).
+- Opcionalmente:
+  - `nivel_movimento_prato` – classificação do nível de movimento do prato no dia (`baixo`, `médio`, `alto`).
+  - **ou** `nivel_movimento` – mesma ideia, com outro nome de coluna.
+
+A aplicação trata ambos os nomes para quantidade (`qtd_prevista_media` / `qtd_vendida`) e para nível de movimento (`nivel_movimento_prato` / `nivel_movimento`).
+
+### 🧾 Exemplo de cabeçalho CSV
+
+```csv
+prato,dia_semana,qtd_prevista_media,nivel_movimento_prato
+Filé de frango,segunda,45.237,alto
+Arroz branco,segunda,120.500,alto
+Salada verde,segunda,30.125,médio
+Feijão preto,terça,80.000,alto
+...
