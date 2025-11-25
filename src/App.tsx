@@ -93,7 +93,6 @@ const App: React.FC = () => {
             };
           });
 
-
         setRows(data);
         // Seleciona automaticamente o primeiro dia disponível na ordem da semana
         if (data.length > 0) {
@@ -251,9 +250,7 @@ const App: React.FC = () => {
                 }}
               >
                 {[...diasDisponiveis]
-                  .sort(
-                    (a, b) => weekIndexes[a] - weekIndexes[b]
-                  )
+                  .sort((a, b) => weekIndexes[a] - weekIndexes[b])
                   .map((dia) => (
                     <option key={dia} value={dia}>
                       {dia}
@@ -397,6 +394,111 @@ const App: React.FC = () => {
                   )}
                 </ResponsiveContainer>
               </div>
+            </section>
+
+            {/* 🔽 NOVA SEÇÃO: Sugestão de preparo para o dia selecionado */}
+            <section
+              style={{
+                marginTop: "2.5rem",
+                paddingTop: "1.5rem",
+                borderTop: "1px solid rgba(148,163,184,0.4)",
+              }}
+            >
+              <h2 style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>
+                Sugestão de preparo para {selectedDia}
+              </h2>
+              <p style={{ color: "#9ca3af", marginBottom: "0.75rem" }}>
+                Lista de pratos e quantidades previstas para auxiliar o
+                planejamento de produção no dia selecionado.
+              </p>
+
+              {dadosPratosDia.length === 0 ? (
+                <p style={{ color: "#9ca3af" }}>
+                  Não há dados disponíveis para o dia selecionado.
+                </p>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        <th
+                          style={{
+                            textAlign: "left",
+                            padding: "0.5rem",
+                            borderBottom:
+                              "1px solid rgba(148,163,184,0.4)",
+                          }}
+                        >
+                          Prato
+                        </th>
+                        <th
+                          style={{
+                            textAlign: "right",
+                            padding: "0.5rem",
+                            borderBottom:
+                              "1px solid rgba(148,163,184,0.4)",
+                          }}
+                        >
+                          Qtd. prevista (porções)
+                        </th>
+                        <th
+                          style={{
+                            textAlign: "left",
+                            padding: "0.5rem",
+                            borderBottom:
+                              "1px solid rgba(148,163,184,0.4)",
+                          }}
+                        >
+                          Nível de movimento
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dadosPratosDia.map((linha) => (
+                        <tr key={linha.prato + linha.dia_semana}>
+                          <td
+                            style={{
+                              padding: "0.4rem 0.5rem",
+                              borderBottom:
+                                "1px solid rgba(31,41,55,0.8)",
+                            }}
+                          >
+                            {linha.prato}
+                          </td>
+                          <td
+                            style={{
+                              padding: "0.4rem 0.5rem",
+                              textAlign: "right",
+                              borderBottom:
+                                "1px solid rgba(31,41,55,0.8)",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            {linha.qtd_prevista_media.toFixed(3)}
+                          </td>
+                          <td
+                            style={{
+                              padding: "0.4rem 0.5rem",
+                              borderBottom:
+                                "1px solid rgba(31,41,55,0.8)",
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {linha.nivel_movimento_prato ||
+                              "não definido"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </section>
           </>
         )}
