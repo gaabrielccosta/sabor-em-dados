@@ -1,6 +1,6 @@
 # 🍽️ Sabor em Dados
 
-**Sabor em Dados** é uma aplicação web construída com **React + TypeScript + Vite** que permite visualizar, de forma interativa, previsões de consumo de pratos em um restaurante a partir de um arquivo **CSV** gerado previamente em um notebook do Google Colab.
+**Sabor em Dados** é uma aplicação web construída com **React + TypeScript + Vite** que permite visualizar, de forma interativa, previsões de consumo de pratos em um restaurante a partir de um arquivo **CSV** gerado previamente em um notebook do Google Colab (https://colab.research.google.com/drive/12F2zPiblk-EFiSJbtYSmUk4dfAxvEyNj?usp=sharing)
 
 O foco é apoiar a **gestão de produção** e **planejamento de cardápio**, ajudando a responder perguntas como:
 
